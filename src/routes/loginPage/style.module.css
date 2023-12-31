@@ -1,0 +1,50 @@
+.LoginPage {
+    width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.LoginBox {
+    max-width: 320px;
+    width: 100%;
+    margin: auto 0;
+    padding: 20px;
+    border: 1px solid #dfdfdf;
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.LoginBoxText>h3 {
+    margin: 0;
+}
+
+.LoginText1 {
+    font-size: 3em;
+    text-align: center;
+    color: #ffc926;
+}
+
+.LoginText2 {
+    font-size: 3em;
+    text-align: center;
+}
+
+.LoginInput {
+    width: 100%;
+}
+
+.LoginDescription {
+    font-size: 14px;
+    font-weight: 400;
+    text-align: center;
+}
+
+.LoginDescription > a{
+    text-decoration: underline;
+    cursor: pointer;
+}

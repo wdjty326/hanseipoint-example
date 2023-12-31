@@ -1,0 +1,50 @@
+.JoinPage {
+    width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.JoinBox {
+    max-width: 320px;
+    width: 100%;
+    margin: auto 0;
+    padding: 20px;
+    border: 1px solid #dfdfdf;
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.JoinBoxText>h3 {
+    margin: 0;
+}
+
+.JoinText1 {
+    font-size: 3em;
+    text-align: center;
+    color: #ffc926;
+}
+
+.JoinText2 {
+    font-size: 3em;
+    text-align: center;
+}
+
+.JoinInput {
+    width: 100%;
+}
+
+.JoinDescription {
+    font-size: 14px;
+    font-weight: 400;
+    text-align: center;
+}
+
+.JoinDescription > a{
+    text-decoration: underline;
+    cursor: pointer;
+}

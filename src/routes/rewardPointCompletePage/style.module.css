@@ -1,0 +1,43 @@
+.RewardPointCompletePage {
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    /* display: grid;
+    grid-template-columns: 20vw 80vw;
+    grid-template-rows: 10vh 90vh; */
+}
+
+.RewardPointCompleteHeader {
+    flex: 0 0 10vh;
+    background: #ffffff;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-bottom: 1px solid #dfdfdf;
+}
+
+.RewardPointCompleteTitle {
+    flex: 1 1;
+    font-size: 2em;
+    margin: 0;
+}
+
+.RewardPointCompleteBody {
+    flex: 0 0 90vh;
+    background-color: #ffffff;
+
+    display: grid;
+    grid-template-rows: 90% 10%;
+}
+
+.RewardPointCompleteBody>div{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.RewardPointCompleteHighlight {
+    color: #ffc926;
+    font-weight: 700;
+}

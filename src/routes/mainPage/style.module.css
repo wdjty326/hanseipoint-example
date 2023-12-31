@@ -1,0 +1,51 @@
+.MainPage {
+    width: 100vw;
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.MainPageTitle {
+    flex: 1 1;
+    display: flex;
+    flex-direction: row;
+    gap: 2.5vw;
+    align-items: center;
+    justify-content: center;
+}
+
+.MainPageTitle>h1 {
+    margin: 0;
+    font-weight: 700;
+}
+
+.MainPageTitleText1 {
+    font-size: 10em;
+    color: #ffc926;
+}
+
+.MainPageTitleText2 {
+    font-size: 8em;
+}
+
+.MainPageButtons {
+    flex: 0 0 120px;
+    display: flex;
+    flex-direction: row;
+    padding: 20px;
+    gap: 20px;
+}
+
+.MainPageButtons > button {
+    font-size: 20px;
+}
+
+.RewardPointButton {
+    flex: 5;
+}
+
+.LoginButton, .JoinButton {
+    flex: 1;
+}
+

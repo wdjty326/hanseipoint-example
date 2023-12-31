@@ -1,0 +1,87 @@
+.ProductListPage {
+    width: 100vw;
+    min-height: 100vh;
+
+    display: grid;
+    grid-template-rows: 56px calc(100vh - 56px);
+}
+
+.ProductListHeader {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: #7a7a7a;
+    padding: 0 20px;
+    color: #ffffff;
+}
+
+.ProductListTitle {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    font-size: 28px;
+}
+
+.ProductListText1 {
+    color: #ffc926;
+}
+
+.ProductListProfile {
+    flex: 1 1;
+    text-align: right;
+    font-size: 18px;
+}
+
+.ProductListBody {
+    overflow: auto;
+    padding: 20px;
+}
+
+.ProductListProfile {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.ProductListProfile>button {
+    color: #ffffff;
+}
+
+.ProductList {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+}
+
+.ProductItem {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.ProductItem+.ProductItem {
+    margin-top: 20px;
+}
+
+.ProductListBody>h1{
+    margin: 0;
+}
+
+.ProductItem>img {
+    max-height: 100px;
+    border-radius: 10px;
+}
+
+.ProductItem>div {
+    flex: 1 1;
+}
+
+.ProductItem>p {
+    font-size: 20px;
+}

@@ -1,0 +1,115 @@
+.RewardPointPage {
+    width: 100vw;
+    display: grid;
+    grid-template-columns: 20vw 80vw;
+    grid-template-rows: 10vh 90vh;
+}
+
+.RewardPointHeader {
+    grid-column: 1/3;
+    grid-row: 1;
+    background: #ffffff;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-bottom: 1px solid #dfdfdf;
+}
+
+.RewardPointTitle {
+    flex: 1 1;
+    font-size: 2em;
+    margin: 0;
+}
+
+.RewardPointClose {
+    border: 0;
+    background-color: transparent;
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+.RewardPointSide {
+    grid-column: 1;
+    grid-row: 2;
+    background-color: #7a7a7a;
+    border-right: 1px solid #dfdfdf;
+    padding: 20px;
+}
+
+.RewardPointBox {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.RewardPointBox+.RewardPointBox {
+    margin-top: 20px;
+}
+
+.RewardPointBox>p {
+    margin-top: 0;
+}
+
+.RewardPointBody {
+    grid-column: 2;
+    grid-row: 2;
+    background-color: #ffffff;
+
+    display: grid;
+    grid-template-rows: 20% 80%;
+}
+
+.RewardPointHighlight {
+    color: #ffc926;
+    font-weight: 700;
+}
+
+.RewardPointPad {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.RewardPointPadButton {
+    flex: 1 1 33%;
+    border: 0;
+    border-radius: 0;
+
+    border-top: 1px solid #dfdfdf;
+    border-right: 1px solid #dfdfdf;
+
+    font-size: 28px;
+    font-weight: 700;
+    background-color: #ffffff;
+}
+
+.RewardPointPadButton:hover,
+.RewardPointPadButton:active {
+    border-color: #ffc926;
+    background-color: #ffc926;
+    color: #ffffff;
+    cursor: pointer;
+
+}
+
+.RewardPointInput {
+    display: flex;
+    flex-direction: column;
+}
+
+.RewardPointInput>input {
+    flex: 1 1;
+    border-width: 0;
+    outline: none;
+    cursor: not-allowed;
+}
+
+.RewardPointInput>p {
+    text-align: center;
+    font-size: 14px;
+}
+
+.RewardPointInput>p>a{
+    text-decoration: underline;
+}
