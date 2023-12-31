@@ -18,7 +18,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build",
+    "test-server": "node server/test"
   },
   "eslintConfig": {
     "extends": [
@@ -39,6 +40,8 @@
     ]
   },
   "devDependencies": {
-    "gh-pages": "^6.1.1"
+    "@types/node": "^20.10.6",
+    "gh-pages": "^6.1.1",
+    "nodb": "github:wdjty326/noDB"
   }
 }
