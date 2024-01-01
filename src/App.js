@@ -1,5 +1,5 @@
 import ContextRouter from './contextRouter';
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect, useLayoutEffect } from 'react';
 
 import MainPage from './routes/mainPage';
 import JoinPage from './routes/joinPage';
@@ -34,6 +34,14 @@ function App() {
     setPrevRouteNames([]);
     setRouteName(name);
   }, [routeName]);
+
+  useLayoutEffect(() => {
+    const loginData = window.sessionStorage.getItem(storeLoginDataKey);
+    if (loginData) {
+      setLoginData(JSON.parse(loginData));
+      setRouteName(ProductListPage.name);
+    }
+}, []);
 
   return (
     <ContextStore.Provider value={{

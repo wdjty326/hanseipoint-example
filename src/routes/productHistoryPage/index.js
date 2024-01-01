@@ -12,7 +12,7 @@ import LoginPage from "../loginPage";
 /// 구매상품목록페이지
 const ProductHistoryPage = () => {
     const { pop, pushAndUtilRemoved } = useContext(ContextRouter);
-    const { loginData, removeLoginData } = useContext(ContextStore);
+    const { loginData, removeLoginData, updatePointData } = useContext(ContextStore);
     const [products, setPruducts] = useState([]);
 
     useEffect(() => {
@@ -21,14 +21,15 @@ const ProductHistoryPage = () => {
             pushAndUtilRemoved(LoginPage.name);
             return;
         }
-        ApiBuyProducts(loginData.userId).then((resp) => {
-            if (resp.code === '0000') {
-                setPruducts(resp.data);
-                return;
-            } else {
-                alert('목록을 가져오지 못했습니다.');
-            }
-        });
+        if (!products.length)
+            ApiBuyProducts(loginData.userId).then((resp) => {
+                if (resp.code === '0000') {
+                    setPruducts(resp.data);
+                    return;
+                } else {
+                    alert('목록을 가져오지 못했습니다.');
+                }
+            });
     }, [loginData]);
 
     if (!loginData) return null;
@@ -75,6 +76,7 @@ const ProductHistoryPage = () => {
                                         clone.splice(idx, 1);
                                         return clone;
                                     });
+                                    updatePointData();
                                     alert('취소완료되었습니다.');
                                 } else {
                                     alert('취소에 실패하였습니다.');
