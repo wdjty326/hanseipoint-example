@@ -10,7 +10,8 @@ import RewardPointPage from './routes/rewardPointPage';
 
 import './Components.css';
 import RewardPointCompletePage from './routes/rewardPointCompletePage';
-import ContextStore from './contextStore';
+import ContextStore, { storeLoginDataKey } from './contextStore';
+import { ApiCurrentPoint } from './api';
 
 function App() {
   const [prevRouteNames, setPrevRouteNames] = useState([]);
@@ -38,13 +39,22 @@ function App() {
     <ContextStore.Provider value={{
       loginData,
       storeLoginData(loginData) {
+        window.sessionStorage.setItem(storeLoginDataKey, JSON.stringify(loginData));
         setLoginData(loginData);
       },
       removeLoginData() {
+        window.sessionStorage.removeItem(storeLoginDataKey);
         setLoginData(null);
       },
-      updatePointData() {
-        /// 직접구현
+      async updatePointData() {
+        if (!loginData) return;
+        const resp = await ApiCurrentPoint(loginData.userId);
+        if (resp.code === '0000') {
+          setLoginData(prev => ({
+            ...prev,
+            point: resp.data,
+          }));
+        }
       },
     }}>
       <ContextRouter.Provider value={{
