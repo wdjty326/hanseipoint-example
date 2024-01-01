@@ -1,27 +1,5 @@
 const http = require("http");
-const fs = require("fs");
-const path = require("path");
 const nodb = require("nodb").default;
-
-const getParameter = (search) => {
-    const params = {};
-    search
-        .split("&")
-        .forEach((s) => {
-            const sp = s.split("=");
-
-            const key = sp[0];
-            const value = decodeURIComponent(sp[1] || "");
-
-            if (isNaN(parseInt(value, 10)))
-                params[key] = parseInt(value, 10);
-            else if (value.toLowerCase() === "true" || value.toLowerCase() === "false")
-                params[key] = value.toLowerCase() === "true";
-            else
-                params[key] = value;
-        });
-    return params;
-};
 
 const initProductData = async () => {
     try {
@@ -83,11 +61,6 @@ db.createFile("my_product",
 
 const server = http.createServer(async (req, res) => {
     const pathname = req.url || "/";
-    console.log(pathname);
-    const search = pathname.substr(pathname.indexOf("?") + 1)
-    const params = getParameter(search);
-
-
     console.log(`Request for ${pathname} received.`);
 
     res.writeHead(200, {
@@ -169,90 +142,94 @@ const server = http.createServer(async (req, res) => {
                 }));
             }
         } else if (req.method === "POST") {
-            const chunks = [];
-            req.on("data", (data) => {
-                chunks.push(data);
-            });
-            req.on("end", async () => {
-                try {
-                    const postdata = JSON.parse(Buffer.from(Buffer.concat(chunks), "utf8").toString());
-                    if (pathname.startsWith("/api/hansei/login")) {
-                        const datas = await db.select("user", (data) => data.phoneNumber === postdata.phoneNumber && data.password === postdata.password);
-                        if (datas.length === 0) {
-                            res.writeHead(404, {
-                                "Content-Type": "application/json; charset=utf-8"
-                            });
-                            return res.end(JSON.stringify({
-                                code: '1001',
-                                message: '',
-                            }));
-                        } else {
-                            res.writeHead(200, {
-                                "Content-Type": "application/json; charset=utf-8"
-                            });
-                            return res.end(JSON.stringify({
-                                code: '0000',
-                                message: '',
-                                data: datas[0],
-                            }));
-                        }
-                    } else if (pathname.startsWith("/api/hansei/join")) {
-                        const datas = await db.select("user", (data) => data.phoneNumber === postdata.phoneNumber);
-                        if (datas.length !== 0) {
-                            res.writeHead(404, {
-                                "Content-Type": "application/json; charset=utf-8"
-                            });
-                            return res.end(JSON.stringify({
-                                code: '1002',
-                                message: '',
-                            }));
-                        }
-
-                        var obj = Object.assign({}, postdata, { userId: Date.now(), point: 1000 });
-                        await db.insertData("user", obj);
-                        res.writeHead(200, {
-                            "Content-Type": "application/json; charset=utf-8"
-                        });
-                        return res.end(JSON.stringify({
-                            code: '0000',
-                            message: '',
-                            data: obj,
-                        }));
-                    } else if (/\/api\/hansei\/user\/([0-9]{1,})\/point/.test(pathname)) {
-                        const phoneNumber = +(pathname.replace(/\/api\/hansei\/user\/([0-9]{1,})\/point/, (p0, p1) => p1));
-                        const datas = await db.select("user", (data) => data.phoneNumber === phoneNumber);
-                        if (datas.length !== 0) {
-                            datas[0].point += postdata.point;
-                            db.updateData("user", datas[0]);
-                            res.writeHead(200, {
-                                "Content-Type": "application/json; charset=utf-8"
-                            });
-                            return res.end(JSON.stringify({
-                                code: '0000',
-                                message: '',
-                                data: datas[0].point,
-                            }));
-                        }
-                    } else if (/\/api\/hansei\/user\/([0-9]{1,})\/order/.test(pathname)) {
-                        const userId = +(pathname.replace(/\/api\/hansei\/user\/([0-9]{1,})\/point/, (p0, p1) => p1));
-
-                        await db.insertData("my_product", {
-                            idx: Date.now(),
-                            userId,
-                            product_id: postdata.productId,
-                        });
-                        res.writeHead(200, {
-                            "Content-Type": "application/json; charset=utf-8"
-                        });
-                        return res.end(JSON.stringify({
-                            code: '0000',
-                            message: '',
-                        }));
+            const postdata = await (new Promise((resolve, reject) => {
+                const chunks = [];
+                req.on("data", (data) => {
+                    chunks.push(data);
+                });
+                req.on("end", () => {
+                    try {
+                        const postdata = JSON.parse(Buffer.from(Buffer.concat(chunks), "utf8").toString());
+                        resolve(postdata);
+                    } catch (e) {
+                        reject(e);
                     }
-                } catch (e) {
-                    console.error(e);
+                });
+            }));
+
+            if (pathname.startsWith("/api/hansei/login")) {
+                const datas = await db.select("user", (data) => data.phoneNumber === postdata.phoneNumber && data.password === postdata.password);
+                if (datas.length === 0) {
+                    res.writeHead(404, {
+                        "Content-Type": "application/json; charset=utf-8"
+                    });
+                    return res.end(JSON.stringify({
+                        code: '1001',
+                        message: '',
+                    }));
+                } else {
+                    res.writeHead(200, {
+                        "Content-Type": "application/json; charset=utf-8"
+                    });
+                    return res.end(JSON.stringify({
+                        code: '0000',
+                        message: '',
+                        data: datas[0],
+                    }));
                 }
-            });
+            } else if (pathname.startsWith("/api/hansei/join")) {
+                const datas = await db.select("user", (data) => data.phoneNumber === postdata.phoneNumber);
+                if (datas.length !== 0) {
+                    res.writeHead(404, {
+                        "Content-Type": "application/json; charset=utf-8"
+                    });
+                    return res.end(JSON.stringify({
+                        code: '1002',
+                        message: '',
+                    }));
+                }
+
+                var obj = Object.assign(postdata, { userId: Date.now(), point: 1000 });
+                await db.insertData("user", obj);
+                res.writeHead(200, {
+                    "Content-Type": "application/json; charset=utf-8"
+                });
+                return res.end(JSON.stringify({
+                    code: '0000',
+                    message: '',
+                    data: obj,
+                }));
+            } else if (/\/api\/hansei\/user\/([0-9]{1,})\/point/.test(pathname)) {
+                const phoneNumber = +(pathname.replace(/\/api\/hansei\/user\/([0-9]{1,})\/point/, (p0, p1) => p1));
+                const datas = await db.select("user", (data) => data.phoneNumber === phoneNumber);
+                if (datas.length !== 0) {
+                    datas[0].point += postdata.point;
+                    db.updateData("user", datas[0]);
+                    res.writeHead(200, {
+                        "Content-Type": "application/json; charset=utf-8"
+                    });
+                    return res.end(JSON.stringify({
+                        code: '0000',
+                        message: '',
+                        data: datas[0].point,
+                    }));
+                }
+            } else if (/\/api\/hansei\/user\/([0-9]{1,})\/order/.test(pathname)) {
+                const userId = +(pathname.replace(/\/api\/hansei\/user\/([0-9]{1,})\/point/, (p0, p1) => p1));
+
+                await db.insertData("my_product", {
+                    idx: Date.now(),
+                    userId,
+                    product_id: postdata.productId,
+                });
+                res.writeHead(200, {
+                    "Content-Type": "application/json; charset=utf-8"
+                });
+                return res.end(JSON.stringify({
+                    code: '0000',
+                    message: '',
+                }));
+            }
         } else if (req.method === "DELETE") {
             if (/\/api\/hansei\/user\/([0-9]{1,})\/order\/([0-9]{1,})/.test(pathname)) {
                 let userId = 0, order_id = 0;
@@ -276,7 +253,7 @@ const server = http.createServer(async (req, res) => {
             "Content-Type": "application/json; charset=utf-8"
         });
         return res.end(JSON.stringify({
-            code: '1001',
+            code: '1000',
             message: '',
         }));
     } catch (e) {
