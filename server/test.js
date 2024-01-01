@@ -59,17 +59,22 @@ db.createFile("my_product",
     .then(() => { })
     .catch(() => { });
 
+const commonHeader = {
+    "Access-Control-Allow-Origin": "*",
+    "Content-Type": "application/json; charset=utf-8"
+};
+
 const server = http.createServer(async (req, res) => {
     const pathname = req.url || "/";
     console.log(`Request for ${pathname} received.`);
 
-    res.writeHead(200, {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "text/html",
-    });
-
     if (pathname === "favicon.ico") return res.end();
     if (pathname === "/") {
+        res.writeHead(200, {
+            "Access-Control-Allow-Origin": "*",
+            "Content-Type": "text/html",
+        });
+
         res.write("Welcome Test Server");
         return res.end();
     }
@@ -82,17 +87,13 @@ const server = http.createServer(async (req, res) => {
                 db.select("user", (data) => data.userId === userId)
                     .then((datas) => {
                         if (datas.length === 0) {
-                            res.writeHead(404, {
-                                "Content-Type": "application/json; charset=utf-8"
-                            });
+                            res.writeHead(404, commonHeader);
                             return res.end(JSON.stringify({
                                 code: '1001',
                                 message: '',
                             }));
                         } else {
-                            res.writeHead(200, {
-                                "Content-Type": "application/json; charset=utf-8"
-                            });
+                            res.writeHead(200, commonHeader);
                             return res.end(JSON.stringify({
                                 code: '0000',
                                 message: '',
@@ -101,9 +102,7 @@ const server = http.createServer(async (req, res) => {
                         }
                     })
                     .catch((e) => {
-                        res.writeHead(404, {
-                            "Content-Type": "application/json; charset=utf-8"
-                        });
+                        res.writeHead(404, commonHeader);
                         return res.end(JSON.stringify({
                             code: '1001',
                             message: '',
@@ -111,9 +110,7 @@ const server = http.createServer(async (req, res) => {
                     });
             } else if (pathname === '/api/hansei/products') {
                 const datas = await db.select("product", (data) => true);
-                res.writeHead(200, {
-                    "Content-Type": "application/json; charset=utf-8"
-                });
+                res.writeHead(200, commonHeader);
                 return res.end(JSON.stringify({
                     code: '0000',
                     message: '',
@@ -132,9 +129,7 @@ const server = http.createServer(async (req, res) => {
                         });
                     }
                 }
-                res.writeHead(200, {
-                    "Content-Type": "application/json; charset=utf-8"
-                });
+                res.writeHead(200, commonHeader);
                 return res.end(JSON.stringify({
                     code: '0000',
                     message: '',
@@ -160,9 +155,7 @@ const server = http.createServer(async (req, res) => {
             if (pathname.startsWith("/api/hansei/login")) {
                 const datas = await db.select("user", (data) => data.phoneNumber === postdata.phoneNumber && data.password === postdata.password);
                 if (datas.length === 0) {
-                    res.writeHead(404, {
-                        "Content-Type": "application/json; charset=utf-8"
-                    });
+                    res.writeHead(404, commonHeader);
                     return res.end(JSON.stringify({
                         code: '1001',
                         message: '',
@@ -180,9 +173,7 @@ const server = http.createServer(async (req, res) => {
             } else if (pathname.startsWith("/api/hansei/join")) {
                 const datas = await db.select("user", (data) => data.phoneNumber === postdata.phoneNumber);
                 if (datas.length !== 0) {
-                    res.writeHead(404, {
-                        "Content-Type": "application/json; charset=utf-8"
-                    });
+                    res.writeHead(404, commonHeader);
                     return res.end(JSON.stringify({
                         code: '1002',
                         message: '',
@@ -191,9 +182,7 @@ const server = http.createServer(async (req, res) => {
 
                 var obj = Object.assign(postdata, { userId: Date.now(), point: 1000 });
                 await db.insertData("user", obj);
-                res.writeHead(200, {
-                    "Content-Type": "application/json; charset=utf-8"
-                });
+                res.writeHead(200, commonHeader);
                 return res.end(JSON.stringify({
                     code: '0000',
                     message: '',
@@ -205,9 +194,7 @@ const server = http.createServer(async (req, res) => {
                 if (datas.length !== 0) {
                     datas[0].point += postdata.point;
                     db.updateData("user", datas[0]);
-                    res.writeHead(200, {
-                        "Content-Type": "application/json; charset=utf-8"
-                    });
+                    res.writeHead(200, commonHeader);
                     return res.end(JSON.stringify({
                         code: '0000',
                         message: '',
@@ -222,9 +209,7 @@ const server = http.createServer(async (req, res) => {
                     userId,
                     product_id: postdata.productId,
                 });
-                res.writeHead(200, {
-                    "Content-Type": "application/json; charset=utf-8"
-                });
+                res.writeHead(200, commonHeader);
                 return res.end(JSON.stringify({
                     code: '0000',
                     message: '',
@@ -239,9 +224,7 @@ const server = http.createServer(async (req, res) => {
                     return p0;
                 }));
                 await db.deleteData("my_product", (data) => data.userId === userId && data.idx === order_id);
-                res.writeHead(200, {
-                    "Content-Type": "application/json; charset=utf-8"
-                });
+                res.writeHead(200, commonHeader);
                 return res.end(JSON.stringify({
                     code: '0000',
                     message: '',
@@ -249,9 +232,7 @@ const server = http.createServer(async (req, res) => {
             }
         }
 
-        res.writeHead(404, {
-            "Content-Type": "application/json; charset=utf-8"
-        });
+        res.writeHead(404, commonHeader);
         return res.end(JSON.stringify({
             code: '1000',
             message: '',
