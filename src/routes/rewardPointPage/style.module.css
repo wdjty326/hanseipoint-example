@@ -103,6 +103,8 @@
     border-width: 0;
     outline: none;
     cursor: not-allowed;
+    text-align: center;
+    font-size: 40px;
 }
 
 .RewardPointInput>p {
