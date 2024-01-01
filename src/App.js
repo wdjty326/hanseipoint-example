@@ -10,10 +10,12 @@ import RewardPointPage from './routes/rewardPointPage';
 
 import './Components.css';
 import RewardPointCompletePage from './routes/rewardPointCompletePage';
+import ContextStore from './contextStore';
 
 function App() {
   const [prevRouteNames, setPrevRouteNames] = useState([]);
   const [routeName, setRouteName] = useState(MainPage.name);
+  const [loginData, setLoginData] = useState(null);
 
   const push = useCallback((name) => {
     setPrevRouteNames(prev => prev.concat([routeName]));
@@ -33,20 +35,30 @@ function App() {
   }, [routeName]);
 
   return (
-    <ContextRouter.Provider value={{
-      prevRouteNames,
-      push,
-      pushAndUtilRemoved,
-      pop,
+    <ContextStore.Provider value={{
+      loginData,
+      storeLoginData(loginData) {
+        setLoginData(loginData);
+      },
+      removeLoginData() {
+        setLoginData(null);
+      }
     }}>
-      {routeName === MainPage.name && <MainPage />}
-      {routeName === JoinPage.name && <JoinPage />}
-      {routeName === LoginPage.name && <LoginPage />}
-      {routeName === ProductListPage.name && <ProductListPage />}
-      {routeName === ProductHistoryPage.name && <ProductHistoryPage />}
-      {routeName === RewardPointPage.name && <RewardPointPage />}
-      {routeName === RewardPointCompletePage.name && <RewardPointCompletePage />}
-    </ContextRouter.Provider>
+      <ContextRouter.Provider value={{
+        prevRouteNames,
+        push,
+        pushAndUtilRemoved,
+        pop,
+      }}>
+        {routeName === MainPage.name && <MainPage />}
+        {routeName === JoinPage.name && <JoinPage />}
+        {routeName === LoginPage.name && <LoginPage />}
+        {routeName === ProductListPage.name && <ProductListPage />}
+        {routeName === ProductHistoryPage.name && <ProductHistoryPage />}
+        {routeName === RewardPointPage.name && <RewardPointPage />}
+        {routeName === RewardPointCompletePage.name && <RewardPointCompletePage />}
+      </ContextRouter.Provider>
+    </ContextStore.Provider>
   );
 }
 
