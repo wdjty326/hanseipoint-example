@@ -87,30 +87,14 @@ const server = http.createServer(async (req, res) => {
         if (req.method === "GET") {
             if (/\/api\/hansei\/user\/([0-9]{1,})\/point/.test(pathname)) {
                 const userId = +(pathname.replace(/\/api\/hansei\/user\/([0-9]{1,})\/point/, (p0, p1) => p1));
-                db.select("user", (data) => data.userId === userId)
-                    .then((datas) => {
-                        if (datas.length === 0) {
-                            res.writeHead(404, commonHeader);
-                            return res.end(JSON.stringify({
-                                code: '1001',
-                                message: '',
-                            }));
-                        } else {
-                            res.writeHead(200, commonHeader);
-                            return res.end(JSON.stringify({
-                                code: '0000',
-                                message: '',
-                                data: datas[0].point,
-                            }));
-                        }
-                    })
-                    .catch((e) => {
-                        res.writeHead(404, commonHeader);
-                        return res.end(JSON.stringify({
-                            code: '1001',
-                            message: '',
-                        }));
-                    });
+
+                const data = await db.selectOne("user", (data) => data.userId === userId);
+                res.writeHead(200, commonHeader);
+                return res.end(JSON.stringify({
+                    code: '0000',
+                    message: '',
+                    data: data.point,
+                }));
             } else if (pathname === '/api/hansei/products') {
                 const datas = await db.select("product", (data) => true);
                 res.writeHead(200, commonHeader);
