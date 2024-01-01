@@ -4,6 +4,7 @@ const ContextStore = createContext({
     loginData: null,
 
     storeLoginData(loginData) { },
-    removeLoginData() { }
+    removeLoginData() { },
+    updatePointData() {},
 });
 export default ContextStore;

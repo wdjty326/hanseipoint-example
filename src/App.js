@@ -42,7 +42,10 @@ function App() {
       },
       removeLoginData() {
         setLoginData(null);
-      }
+      },
+      updatePointData() {
+        /// 직접구현
+      },
     }}>
       <ContextRouter.Provider value={{
         prevRouteNames,
