@@ -61,17 +61,20 @@ db.createFile("my_product",
 
 const commonHeader = {
     "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "*",
+    "Access-Control-Allow-Headers": "*",
     "Content-Type": "application/json; charset=utf-8"
 };
 
 const server = http.createServer(async (req, res) => {
     const pathname = req.url || "/";
-    console.log(`Request for ${pathname} received.`);
+    console.log(`Request for ${pathname} ${req.method} received.`);
 
     if (pathname === "favicon.ico") return res.end();
     if (pathname === "/") {
         res.writeHead(200, {
             "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*",
             "Content-Type": "text/html",
         });
 
@@ -118,7 +121,7 @@ const server = http.createServer(async (req, res) => {
                 }));
             } else if (/\/api\/hansei\/user\/([0-9]{1,})\/orders/.test(pathname)) {
                 const userId = +(pathname.replace(/\/api\/hansei\/user\/([0-9]{1,})\/orders/, (p0, p1) => p1));
-                const datas = (await db.select("my_product", (data) => data.userId === userId));
+                const datas = await db.select("my_product", (data) => data.userId === userId);
                 const result = [];
                 for (var i = 0; i < datas.length; i++) {
                     var product = await db.selectOne("product", (data) => data.product_id === datas[i].product_id);
@@ -161,16 +164,54 @@ const server = http.createServer(async (req, res) => {
                         message: '',
                     }));
                 } else {
-                    res.writeHead(200, {
-                        "Content-Type": "application/json; charset=utf-8"
-                    });
+                    res.writeHead(200, commonHeader);
                     return res.end(JSON.stringify({
                         code: '0000',
                         message: '',
                         data: datas[0],
                     }));
                 }
-            } else if (pathname.startsWith("/api/hansei/join")) {
+            } else if (/\/api\/hansei\/user\/([0-9]{1,})\/point/.test(pathname)) {
+                const phoneNumber = pathname.replace(/\/api\/hansei\/user\/([0-9]{1,})\/point/, (p0, p1) => p1);
+                const data = await db.selectOne("user", (data) => {
+                    return data.phoneNumber === phoneNumber;
+                });
+                if (data) {
+                    data.point += postdata.point;
+                    db.updateData("user", data);
+                    res.writeHead(200, commonHeader);
+                    return res.end(JSON.stringify({
+                        code: '0000',
+                        message: '',
+                        data: data.point,
+                    }));
+                }
+            } else if (/\/api\/hansei\/user\/([0-9]{1,})\/order/.test(pathname)) {
+                const userId = +(pathname.replace(/\/api\/hansei\/user\/([0-9]{1,})\/order/, (p0, p1) => p1));
+                const userData = await db.selectOne("user", (data) => data.userId === userId);
+                const productData = await db.selectOne("product", (data) => data.product_id === postdata.productId);
+                if (userData.point < productData.product_price) {
+                    res.writeHead(404, commonHeader);
+                    return res.end(JSON.stringify({
+                        code: '1001',
+                        message: '',
+                    }));
+                }
+                await db.insertData("my_product", {
+                    idx: Date.now(),
+                    userId,
+                    product_id: productData.product_id,
+                });
+                await db.updateData("user", {
+                    ...userData,
+                    point: userData.point - productData.product_price,
+                });
+                res.writeHead(200, commonHeader);
+                return res.end(JSON.stringify({
+                    code: '0000',
+                    message: '',
+                }));
+            } else if (pathname.startsWith("/api/hansei/user")) {
                 const datas = await db.select("user", (data) => data.phoneNumber === postdata.phoneNumber);
                 if (datas.length !== 0) {
                     res.writeHead(404, commonHeader);
@@ -188,26 +229,30 @@ const server = http.createServer(async (req, res) => {
                     message: '',
                     data: obj,
                 }));
-            } else if (/\/api\/hansei\/user\/([0-9]{1,})\/point/.test(pathname)) {
-                const phoneNumber = +(pathname.replace(/\/api\/hansei\/user\/([0-9]{1,})\/point/, (p0, p1) => p1));
-                const datas = await db.select("user", (data) => data.phoneNumber === phoneNumber);
-                if (datas.length !== 0) {
-                    datas[0].point += postdata.point;
-                    db.updateData("user", datas[0]);
-                    res.writeHead(200, commonHeader);
+            }
+        } else if (req.method === "DELETE") {
+            if (/\/api\/hansei\/user\/([0-9]{1,})\/order\/([0-9]{1,})/.test(pathname)) {
+                let userId = 0, order_id = 0;
+                (pathname.replace(/\/api\/hansei\/user\/([0-9]{1,})\/order\/([0-9]{1,})/, (p0, p1, p2) => {
+                    console.log(p0, p1, p2)
+                    userId = +p1;
+                    order_id = +p2;
+                    return p0;
+                }));
+                const userData = await db.selectOne("user", (data) => data.userId === userId);
+                const orderData = await db.selectOne("my_product", (data) => data.idx === order_id);
+                if (!orderData) {
+                    res.writeHead(404, commonHeader);
                     return res.end(JSON.stringify({
-                        code: '0000',
-                        message: '',
-                        data: datas[0].point,
+                        code: '1001',
+                        message: '오더가없습니다',
                     }));
                 }
-            } else if (/\/api\/hansei\/user\/([0-9]{1,})\/order/.test(pathname)) {
-                const userId = +(pathname.replace(/\/api\/hansei\/user\/([0-9]{1,})\/point/, (p0, p1) => p1));
-
-                await db.insertData("my_product", {
-                    idx: Date.now(),
-                    userId,
-                    product_id: postdata.productId,
+                const productData = await db.selectOne("product", (data) => data.product_id === orderData.product_id);
+                await db.deleteData("my_product", orderData);
+                await db.updateData("user", {
+                    ...userData,
+                    point: userData.point + productData.product_price,
                 });
                 res.writeHead(200, commonHeader);
                 return res.end(JSON.stringify({
@@ -215,21 +260,14 @@ const server = http.createServer(async (req, res) => {
                     message: '',
                 }));
             }
-        } else if (req.method === "DELETE") {
-            if (/\/api\/hansei\/user\/([0-9]{1,})\/order\/([0-9]{1,})/.test(pathname)) {
-                let userId = 0, order_id = 0;
-                (pathname.replace(/\/api\/hansei\/user\/([0-9]{1,})\/order\/([0-9]{1,})/, (p0, p1, p2) => {
-                    userId = +p1;
-                    order_id = +p2;
-                    return p0;
-                }));
-                await db.deleteData("my_product", (data) => data.userId === userId && data.idx === order_id);
-                res.writeHead(200, commonHeader);
-                return res.end(JSON.stringify({
-                    code: '0000',
-                    message: '',
-                }));
-            }
+        } else if (req.method === "OPTIONS") {
+            res.writeHead(200, {
+
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Headers": "*"
+            });
+            return res.end();
         }
 
         res.writeHead(404, commonHeader);
@@ -239,10 +277,12 @@ const server = http.createServer(async (req, res) => {
         }));
     } catch (e) {
         console.error(e);
-        res.write(JSON.stringify({
-            error: e.message,
+
+        res.writeHead(404, commonHeader);
+        return res.end(JSON.stringify({
+            code: '1000',
+            message: '',
         }));
-        res.end();
     }
 });
 server.on("listening", () => {
